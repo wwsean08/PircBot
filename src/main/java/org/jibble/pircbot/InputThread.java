@@ -17,6 +17,8 @@ package org.jibble.pircbot;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Thread which reads lines from the IRC server.  It then
@@ -29,6 +31,7 @@ import java.util.*;
  * @version    1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
  */
 public class InputThread extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(InputThread.class);
 
     /**
      * The InputThread reads lines from the IRC server and allows the
@@ -99,13 +102,13 @@ public class InputThread extends Thread {
                             pw.flush();
                             StringTokenizer tokenizer = new StringTokenizer(sw.toString(), "\r\n");
                             synchronized (_bot) {
-                                _bot.log("### Your implementation of PircBot is faulty and you have");
-                                _bot.log("### allowed an uncaught Exception or Error to propagate in your");
-                                _bot.log("### code. It may be possible for PircBot to continue operating");
-                                _bot.log("### normally. Here is the stack trace that was produced: -");
-                                _bot.log("### ");
+                                log.debug("### Your implementation of PircBot is faulty and you have");
+                                log.debug("### allowed an uncaught Exception or Error to propagate in your");
+                                log.debug("### code. It may be possible for PircBot to continue operating");
+                                log.debug("### normally. Here is the stack trace that was produced: -");
+                                log.debug("### ");
                                 while (tokenizer.hasMoreTokens()) {
-                                    _bot.log("### " + tokenizer.nextToken());
+                                    log.debug("### " + tokenizer.nextToken());
                                 }
                             }
                         }
@@ -136,7 +139,7 @@ public class InputThread extends Thread {
         }
 
         if (!_disposed) {
-            _bot.log("*** Disconnected.");
+            log.debug("*** Disconnected.");
             _isConnected = false;
             _bot.getEventHandler().onDisconnect();
         }

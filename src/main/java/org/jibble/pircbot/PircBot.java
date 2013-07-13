@@ -913,7 +913,7 @@ public abstract class PircBot implements ReplyConstants {
      *
      * @param line The line to add to the log.
      */
-    public void log(String line) {
+    private void log(String line) {
         log.info(line);
     }
 

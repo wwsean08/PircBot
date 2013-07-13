@@ -1,21 +1,18 @@
 /*
 Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
-
 This file is part of PircBot.
-
 This software is dual-licensed, allowing you to choose between the GNU
 General Public License (GPL) and the www.jibble.org Commercial License.
 Since the GPL may be too restrictive for use in a proprietary application,
 a commercial license is also provided. Full license information can be
 found at http://www.jibble.org/licenses/
-
 */
-
-
 package org.jibble.pircbot;
 
 import java.net.*;
 import java.io.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple IdentServer (also know as "The Identification Protocol").
@@ -42,7 +39,13 @@ import java.io.*;
  * @version    1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
  */
 public class IdentServer extends Thread {
+    private static final Logger log = LoggerFactory.getLogger(IdentServer.class);
+    
+    private PircBot _bot;
+    private String _login;
+    private ServerSocket _ss = null;
 
+    
     /**
      * Constructs and starts an instance of an IdentServer that will
      * respond to a client with the provided login.  Rather than calling
@@ -65,11 +68,11 @@ public class IdentServer extends Thread {
             _ss.setSoTimeout(60000);
         }
         catch (Exception e) {
-            _bot.log("*** Could not start the ident server on port 113.");
+            log.warn("*** Could not start the ident server on port 113.");
             return;
         }
 
-        _bot.log("*** Ident server running on port 113 for the next 60 seconds...");
+        log.info("*** Ident server running on port 113 for the next 60 seconds...");
         this.setName(this.getClass() + "-Thread");
         this.start();
     }
@@ -90,11 +93,11 @@ public class IdentServer extends Thread {
 
             String line = reader.readLine();
             if (line != null) {
-                _bot.log("*** Ident request received: " + line);
+                log.debug("*** Ident request received: " + line);
                 line = line + " : USERID : UNIX : " + _login;
                 writer.write(line + "\r\n");
                 writer.flush();
-                _bot.log("*** Ident reply sent: " + line);
+                log.debug("*** Ident reply sent: " + line);
                 writer.close();
             }
         }
@@ -109,11 +112,7 @@ public class IdentServer extends Thread {
             // Doesn't really matter...
         }
 
-        _bot.log("*** The Ident server has been shut down.");
+        log.info("*** The Ident server has been shut down.");
     }
 
-    private PircBot _bot;
-    private String _login;
-    private ServerSocket _ss = null;
-
-}
+}// class

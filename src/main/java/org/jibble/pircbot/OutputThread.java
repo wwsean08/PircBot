@@ -1,6 +1,5 @@
 /*
 Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
-
 This file is part of PircBot.
 
 This software is dual-licensed, allowing you to choose between the GNU
@@ -8,14 +7,12 @@ General Public License (GPL) and the www.jibble.org Commercial License.
 Since the GPL may be too restrictive for use in a proprietary application,
 a commercial license is also provided. Full license information can be
 found at http://www.jibble.org/licenses/
-
 */
-
-
 package org.jibble.pircbot;
 
 import java.io.*;
-import java.net.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Thread which is responsible for sending messages to the IRC server.
@@ -29,7 +26,8 @@ import java.net.*;
  * @version    1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
  */
 public class OutputThread extends Thread {
-
+    private static final Logger log = LoggerFactory.getLogger(OutputThread.class);
+    
 
     /**
      * Constructs an OutputThread for the underlying PircBot.  All messages
@@ -65,7 +63,7 @@ public class OutputThread extends Thread {
             try {
                 bwriter.write(line + "\r\n");
                 bwriter.flush();
-                bot.log(">>>" + line);
+                log.debug(">>>" + line);
             }
             catch (Exception e) {
                 // Silent response - just lose the line.
