@@ -60,7 +60,7 @@ public class DccManager {
             }
 
             DccFileTransfer transfer = new DccFileTransfer(_bot, this, nick, login, hostname, type, filename, address, port, size);
-            _bot.onIncomingFileTransfer(transfer);
+            _bot.getEventHandler().onIncomingFileTransfer(transfer);
 
         }
         else if (type.equals("RESUME")) {
@@ -112,7 +112,7 @@ public class DccManager {
 
             new Thread() {
                 public void run() {
-                    _bot.onIncomingChatRequest(chat);
+                    _bot.getEventHandler().onIncomingChatRequest(chat);
                 }
             }.start();
         }
