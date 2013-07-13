@@ -1,10 +1,11 @@
-package org.jibble.pircbot.api;
+package org.jibble.pircbot.handlers;
 
 import java.util.Date;
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
 import org.jibble.pircbot.IrcServerConnection;
 import org.jibble.pircbot.User;
+import org.jibble.pircbot.api.IIrcEventHandler;
 
 /**
  * Internal event handler; 

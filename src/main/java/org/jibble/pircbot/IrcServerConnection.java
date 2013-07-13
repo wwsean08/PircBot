@@ -23,7 +23,7 @@ import java.util.*;
 import javax.net.*;
 import javax.net.ssl.*;
 import org.jibble.pircbot.api.IIrcEventHandler;
-import org.jibble.pircbot.api.InternalIrcEventHandler;
+import org.jibble.pircbot.handlers.InternalIrcEventHandler;
 import org.jibble.pircbot.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
