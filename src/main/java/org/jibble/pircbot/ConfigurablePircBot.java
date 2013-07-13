@@ -18,63 +18,64 @@ public abstract class ConfigurablePircBot extends PircBot {
     }
 
     public void initBot(File file) throws Exception {
-        PropertiesConfiguration c = new PropertiesConfiguration();
-        c.setDelimiterParsingDisabled(true);
-        c.load(file);
-        initBot(c);
+        PropertiesConfiguration conf = new PropertiesConfiguration();
+        conf.setDelimiterParsingDisabled(true);
+        conf.load(file);
+        initBot(conf);
     }
 
-    public void initBot(Configuration c) throws Exception {
-        this.configuration = c;
+    public void initBot(Configuration conf) throws Exception {
+        this.configuration = conf;
 
-        if (c.containsKey("Verbose")) {
-            setVerbose(c.getBoolean("Verbose"));
+        if (conf.containsKey("Verbose")) {
+            setVerbose(conf.getBoolean("Verbose"));
         }
 
-        if (c.containsKey("Nick")) {
-            setName(c.getString("Nick"));
+        if (conf.containsKey("Nick")) {
+            setName(conf.getString("Nick"));
         }
 
-        if (c.containsKey("UserName")) {
-            setUserName(c.getString("UserName"));
+        if (conf.containsKey("UserName")) {
+            setUserName(conf.getString("UserName"));
         }
 
-        if (c.containsKey("RealName")) {
-            setRealName(c.getString("RealName"));
+        if (conf.containsKey("RealName")) {
+            setRealName(conf.getString("RealName"));
         }
 
-        if (c.containsKey("Version")) {
-            setVersion(c.getString("Version"));
+        if (conf.containsKey("Version")) {
+            setVersion(conf.getString("Version"));
         }
 
-        if (c.containsKey("Finger")) {
-            setFinger(c.getString("Finger"));
+        if (conf.containsKey("Finger")) {
+            setFinger(conf.getString("Finger"));
         }
 
-        if (c.containsKey("Server")) {
-            ConnectionSettings cs = new ConnectionSettings(c.getString("Server"));
+        if (conf.containsKey("Server")) {
+            ConnectionSettings cs = new ConnectionSettings(conf.getString("Server"));
 
-            if (c.containsKey("Port")) {
-                cs.port = c.getInt("Port");
+            if (conf.containsKey("Port")) {
+                cs.port = conf.getInt("Port");
             }
 
-            if (c.containsKey("SSL")) {
-                cs.useSSL = c.getBoolean("SSL");
+            if (conf.containsKey("SSL")) {
+                cs.useSSL = conf.getBoolean("SSL");
             }
 
-            if (c.containsKey("VerifySSL")) {
-                cs.verifySSL = c.getBoolean("VerifySSL");
+            if (conf.containsKey("VerifySSL")) {
+                cs.verifySSL = conf.getBoolean("VerifySSL");
             }
 
-            if (c.containsKey("Password")) {
-                cs.password = c.getString("Password");
+            if (conf.containsKey("Password")) {
+                cs.password = conf.getString("Password");
             }
 
             connect(cs);
 
-            if (c.containsKey("Channels")) {
-                joinChannel(c.getString("Channels"));
+            if (conf.containsKey("Channels")) {
+                joinChannel(conf.getString("Channels"));
             }
         }
-    }
-}
+    }// initBot()
+    
+}// class
