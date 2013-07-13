@@ -40,7 +40,7 @@ public class OutputThread extends Thread {
     OutputThread(IrcServerConnection bot, Queue outQueue) {
         _bot = bot;
         _outQueue = outQueue;
-        this.setName(this.getClass() + "-Thread");
+        this.setName("output-thread");
     }
 
 
