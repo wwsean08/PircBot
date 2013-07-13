@@ -7,7 +7,7 @@
 
     </properties>
 
-    <groupId>cz.oz.third.pircbot</groupId>
+    <groupId>cz.dynawest.pircbot</groupId>
     <artifactId>PircBot-core</artifactId>
     <version>1.7.0</version>
 
