@@ -1,15 +1,15 @@
 /*
-Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
+    Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
 
-This file is part of PircBot.
+    This file is part of PircBot.
 
-This software is dual-licensed, allowing you to choose between the GNU
-General Public License (GPL) and the www.jibble.org Commercial License.
-Since the GPL may be too restrictive for use in a proprietary application,
-a commercial license is also provided. Full license information can be
-found at http://www.jibble.org/licenses/
+    This software is dual-licensed, allowing you to choose between the GNU
+    General Public License (GPL) and the www.jibble.org Commercial License.
+    Since the GPL may be too restrictive for use in a proprietary application,
+    a commercial license is also provided. Full license information can be
+    found at http://www.jibble.org/licenses/
 
-Modifications from PircBot 1.5 by David Lazar.
+    Modifications from PircBot 1.5 by David Lazar and Ondrej Zizka.
 */
 
 
@@ -22,6 +22,8 @@ import java.net.*;
 import java.util.*;
 import javax.net.*;
 import javax.net.ssl.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PircBot is a Java framework for writing IRC bots quickly and easily.
@@ -54,18 +56,16 @@ import javax.net.ssl.*;
  * and a list of some existing Java IRC bots and clients that use the PircBot
  * framework.
  *
- * @author  Paul James Mutton,
- *          <a href="http://www.jibble.org/">http://www.jibble.org/</a>
+ * @author  Paul James Mutton, <a href="http://www.jibble.org/">http://www.jibble.org/</a>
  * @version    1.5.0 (Build time: Mon Dec 14 20:07:17 2009)
  */
 public abstract class PircBot implements ReplyConstants {
-
+    private static final Logger log = LoggerFactory.getLogger(PircBot.class);
 
     /**
      * The definitive version number of this release of PircBot.
-     * (Note: Change this before automatically building releases)
      */
-    public static final String VERSION = "1.5.0";
+    public static final String VERSION = "1.7.0";
 
 
     private static final int OP_ADD = 1;
@@ -181,7 +181,7 @@ public abstract class PircBot implements ReplyConstants {
             socket = new Socket(_cs.server, _cs.port);
         }
 
-        this.log("*** Connected to server.");
+        log.debug("*** Connected to server.");
 
         _inetAddress = socket.getLocalAddress();
 
@@ -253,7 +253,7 @@ public abstract class PircBot implements ReplyConstants {
 
         }
 
-        this.log("*** Logged onto server.");
+        log.debug("*** Logged onto server.");
 
         // This makes the socket timeout on read operations after 5 minutes.
         // Maybe in some future version I will let the user change this at runtime.
@@ -902,9 +902,7 @@ public abstract class PircBot implements ReplyConstants {
      * @param line The line to add to the log.
      */
     public void log(String line) {
-        if (_verbose) {
-            System.out.println(System.currentTimeMillis() + " " + line);
-        }
+        log.info(line);
     }
 
 
@@ -918,7 +916,7 @@ public abstract class PircBot implements ReplyConstants {
      * @param line The raw line of text from the server.
      */
     protected void handleLine(String line) {
-        this.log(line);
+        log.debug(line);
 
         // Check for server pings.
         if (line.startsWith("PING ")) {
