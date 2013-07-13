@@ -3098,7 +3098,7 @@ public abstract class PircBot implements ReplyConstants {
      */
     private void removeAllChannels() {
         synchronized(_channels) {
-            _channels = new Hashtable();
+            _channels = new Hashtable(); // !!!
         }
     }
 
