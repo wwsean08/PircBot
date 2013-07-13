@@ -485,6 +485,20 @@ public abstract class IrcServerConnection implements ReplyConstants {
     public final void sendMessage(String target, String message) {
         _outQueue.add("PRIVMSG " + target + " :" + message);
     }
+    
+    public final void sendMessage(String user, String channel, String message) {
+        if (channel == null) {
+            if (user == null) {
+                throw new IllegalArgumentException("Neither user nor channel set, can't send the message: " + message);
+            } else {
+                this.sendMessage(user, message);
+            }
+        } else {
+            String whoFor = (user == null) ? "" : (user + ": ");
+            this.sendMessage(channel, whoFor + message);
+        }
+    }
+    
 
 
     /**
