@@ -11,7 +11,7 @@ found at http://www.jibble.org/licenses/
 
 */
 
-package org.jibble.pircbot;
+package org.jibble.pircbot.beans;
 
 /**
  * This class is used to represent a user on an IRC server.
@@ -35,7 +35,7 @@ public class User {
      * @param prefix The status of the user, for example, "@".
      * @param nick The nick of the user.
      */
-    User(String prefix, String nick) {
+    public User(String prefix, String nick) {
         _prefix = prefix;
         _nick = nick;
         _lowerNick = nick.toLowerCase();

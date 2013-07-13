@@ -3,6 +3,7 @@ Author: David Lazar
 */
 package org.jibble.pircbot;
 
+import org.jibble.pircbot.beans.ConnectionSettings;
 import java.io.*;
 import org.apache.commons.configuration.*;
 

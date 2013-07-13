@@ -12,7 +12,7 @@ found at http://www.jibble.org/licenses/
 */
 
 
-package org.jibble.pircbot;
+package org.jibble.pircbot.beans;
 
 /**
  * The Colors class provides several static fields and methods that you may

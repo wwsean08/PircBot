@@ -15,6 +15,9 @@
 
 package org.jibble.pircbot;
 
+import org.jibble.pircbot.beans.ReplyConstants;
+import org.jibble.pircbot.beans.ConnectionSettings;
+import org.jibble.pircbot.beans.User;
 import org.jibble.pircbot.ex.IrcException;
 import org.jibble.pircbot.ex.NickAlreadyInUseException;
 import java.io.*;

@@ -1,7 +1,7 @@
 /*
 Author: David Lazar
 */
-package org.jibble.pircbot;
+package org.jibble.pircbot.beans;
 
 public class ConnectionSettings {
     public String server = null;

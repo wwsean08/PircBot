@@ -2,7 +2,7 @@ package org.jibble.pircbot.api;
 
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
-import org.jibble.pircbot.User;
+import org.jibble.pircbot.beans.User;
 
 /**
  *  Interface for IRC event handler implementations.
