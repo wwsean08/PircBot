@@ -72,7 +72,7 @@ public class IdentServer extends Thread {
         }
 
         log.info("*** Ident server running on port 113 for the next 60 seconds...");
-        this.setName(this.getClass() + "-Thread");
+        this.setName("identServer-thread");
         this.start();
     }
 
