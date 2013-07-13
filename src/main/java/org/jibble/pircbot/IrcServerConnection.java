@@ -1396,7 +1396,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      *
      * @param name The new name of the Bot.
      */
-    protected final void setName(String name) {
+    public final void setName(String name) {
         _name = name;
     }
 
