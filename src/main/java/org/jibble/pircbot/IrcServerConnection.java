@@ -62,8 +62,8 @@ import org.slf4j.LoggerFactory;
  * @author  Paul James Mutton, <a href="http://www.jibble.org/">http://www.jibble.org/</a>
  * @author  Ondrej Zizka, <a href="http://www.pohlidame.cz/">http://www.pohlidame.cz/</a>
  */
-public abstract class PircBot implements ReplyConstants {
-    private static final Logger log = LoggerFactory.getLogger(PircBot.class);
+public abstract class IrcServerConnection implements ReplyConstants {
+    private static final Logger log = LoggerFactory.getLogger(IrcServerConnection.class);
 
     /**
      * The definitive version number of this release of PircBot.
@@ -89,7 +89,7 @@ public abstract class PircBot implements ReplyConstants {
      * in classes which extend the PircBot abstract class should be responsible
      * for changing the default settings if required.
      */
-    public PircBot() {
+    public IrcServerConnection() {
         this.eventHandler = new InternalIrcEventHandler( this ); // Carefuly - uninitialized this.
     }
 
@@ -1823,8 +1823,8 @@ public abstract class PircBot implements ReplyConstants {
      */
     public boolean equals(Object o) {
         // This probably has the same effect as Object.equals, but that may change...
-        if (o instanceof PircBot) {
-            PircBot other = (PircBot) o;
+        if (o instanceof IrcServerConnection) {
+            IrcServerConnection other = (IrcServerConnection) o;
             return other == this;
         }
         return false;

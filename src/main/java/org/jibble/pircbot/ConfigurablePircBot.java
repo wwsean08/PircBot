@@ -6,7 +6,7 @@ package org.jibble.pircbot;
 import java.io.*;
 import org.apache.commons.configuration.*;
 
-public abstract class ConfigurablePircBot extends PircBot {
+public abstract class ConfigurablePircBot extends IrcServerConnection {
     private Configuration configuration;
 
     public Configuration getConfiguration() {

@@ -3,7 +3,7 @@ package org.jibble.pircbot.api;
 import java.util.Date;
 import org.jibble.pircbot.DccChat;
 import org.jibble.pircbot.DccFileTransfer;
-import org.jibble.pircbot.PircBot;
+import org.jibble.pircbot.IrcServerConnection;
 import org.jibble.pircbot.User;
 
 /**
@@ -14,10 +14,10 @@ import org.jibble.pircbot.User;
  */
 public class InternalIrcEventHandler implements IIrcEventHandler {
     
-    private PircBot pircBot;
+    private IrcServerConnection pircBot;
 
 
-    public InternalIrcEventHandler( PircBot pircBot ) {
+    public InternalIrcEventHandler( IrcServerConnection pircBot ) {
         this.pircBot = pircBot;
     }
     

@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 public class IdentServer extends Thread {
     private static final Logger log = LoggerFactory.getLogger(IdentServer.class);
     
-    private PircBot _bot;
+    private IrcServerConnection _bot;
     private String _login;
     private ServerSocket _ss = null;
 
@@ -58,7 +58,7 @@ public class IdentServer extends Thread {
      * @param bot The PircBot instance that will be used to log to.
      * @param login The login that the ident server will respond with.
      */
-    IdentServer(PircBot bot, String login) {
+    IdentServer(IrcServerConnection bot, String login) {
         _bot = bot;
         _login = login;
 

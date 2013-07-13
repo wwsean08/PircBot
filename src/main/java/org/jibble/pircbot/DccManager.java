@@ -29,7 +29,7 @@ public class DccManager {
      *
      * @param bot The PircBot whose DCC events this class will handle.
      */
-    DccManager(PircBot bot) {
+    DccManager(IrcServerConnection bot) {
         _bot = bot;
     }
 
@@ -142,7 +142,7 @@ public class DccManager {
     }
 
 
-    private PircBot _bot;
+    private IrcServerConnection _bot;
     private Vector _awaitingResume = new Vector();
 
 }
