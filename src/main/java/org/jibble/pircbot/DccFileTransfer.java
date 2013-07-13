@@ -10,8 +10,6 @@ a commercial license is also provided. Full license information can be
 found at http://www.jibble.org/licenses/
 
 */
-
-
 package org.jibble.pircbot;
 
 import java.net.*;
@@ -162,7 +160,7 @@ public class DccFileTransfer {
                     }
                 }
 
-                _bot.onFileTransferFinished(DccFileTransfer.this, exception);
+                _bot.getEventHandler().onFileTransferFinished(DccFileTransfer.this, exception);
             }
         }.start();
     }
@@ -274,7 +272,7 @@ public class DccFileTransfer {
                     }
                 }
 
-                _bot.onFileTransferFinished(DccFileTransfer.this, exception);
+                _bot.getEventHandler().onFileTransferFinished(DccFileTransfer.this, exception);
             }
         }.start();
     }
