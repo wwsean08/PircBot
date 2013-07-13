@@ -16,6 +16,7 @@ package org.jibble.pircbot;
 
 import java.net.*;
 import java.io.*;
+import org.jibble.pircbot.utils.Utils;
 
 /**
  * This class is used to allow the bot to interact with a DCC Chat session.
@@ -81,7 +82,7 @@ public class DccChat {
     public synchronized void accept() throws IOException {
         if (_acceptable) {
             _acceptable = false;
-            int[] ip = _bot.longToIp(_address);
+            int[] ip = Utils.longToIp(_address);
             String ipStr = ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3];
             _socket = new Socket(ipStr, _port);
             _reader = new BufferedReader(new InputStreamReader(_socket.getInputStream()));

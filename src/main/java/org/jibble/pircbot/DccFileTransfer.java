@@ -14,6 +14,7 @@ package org.jibble.pircbot;
 
 import java.net.*;
 import java.io.*;
+import org.jibble.pircbot.utils.Utils;
 
 /**
  * This class is used to administer a DCC file transfer.
@@ -113,7 +114,7 @@ public class DccFileTransfer {
                 try {
 
                     // Convert the integer address to a proper IP address.
-                    int[] ip = _bot.longToIp(_address);
+                    int[] ip = Utils.longToIp(_address);
                     String ipStr = ip[0] + "." + ip[1] + "." + ip[2] + "." + ip[3];
 
                     // Connect the socket and set a timeout.
@@ -209,7 +210,7 @@ public class DccFileTransfer {
                         inetAddress = _bot.getInetAddress();
                     }
                     byte[] ip = inetAddress.getAddress();
-                    long ipNum = _bot.ipToLong(ip);
+                    long ipNum = Utils.ipToLong(ip);
 
                     // Rename the filename so it has no whitespace in it when we send it.
                     // .... I really should do this a bit more nicely at some point ....
