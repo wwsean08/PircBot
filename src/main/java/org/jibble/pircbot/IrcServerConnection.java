@@ -1271,93 +1271,93 @@ public abstract class IrcServerConnection implements ReplyConstants {
                        this.eventHandler.onDeop(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
                    }
                    p++;
-               }
-               else if (atPos == 'v') {
-                   if (pn == '+') {
-                       this.updateUser(channel, VOICE_ADD, params[p]);
-                       this.eventHandler.onVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
-                   else {
-                       this.updateUser(channel, VOICE_REMOVE, params[p]);
-                       this.eventHandler.onDeVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                   }
-                   p++;
                 }
-                else if (atPos == 'k') {
+                else if (atPos == 'v') {
                     if (pn == '+') {
-                        this.eventHandler.onSetChannelKey(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                        this.updateUser(channel, VOICE_ADD, params[p]);
+                        this.eventHandler.onVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
                     }
                     else {
-                        this.eventHandler.onRemoveChannelKey(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                        this.updateUser(channel, VOICE_REMOVE, params[p]);
+                        this.eventHandler.onDeVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
                     }
                     p++;
-                }
-                else if (atPos == 'l') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetChannelLimit(channel, sourceNick, sourceLogin, sourceHostname, Integer.parseInt(params[p]));
-                        p++;
-                    }
-                    else {
-                        this.eventHandler.onRemoveChannelLimit(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 'b') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetChannelBan(channel, sourceNick, sourceLogin, sourceHostname,params[p]);
-                    }
-                    else {
-                        this.eventHandler.onRemoveChannelBan(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
-                    }
-                    p++;
-                }
-                else if (atPos == 't') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemoveTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 'n') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetNoExternalMessages(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemoveNoExternalMessages(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 'i') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemoveInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 'm') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetModerated(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemoveModerated(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 'p') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetPrivate(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemovePrivate(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
-                else if (atPos == 's') {
-                    if (pn == '+') {
-                        this.eventHandler.onSetSecret(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                    else {
-                        this.eventHandler.onRemoveSecret(channel, sourceNick, sourceLogin, sourceHostname);
-                    }
-                }
+                 }
+                 else if (atPos == 'k') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetChannelKey(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                     }
+                     else {
+                         this.eventHandler.onRemoveChannelKey(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                     }
+                     p++;
+                 }
+                 else if (atPos == 'l') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetChannelLimit(channel, sourceNick, sourceLogin, sourceHostname, Integer.parseInt(params[p]));
+                         p++;
+                     }
+                     else {
+                         this.eventHandler.onRemoveChannelLimit(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 'b') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetChannelBan(channel, sourceNick, sourceLogin, sourceHostname,params[p]);
+                     }
+                     else {
+                         this.eventHandler.onRemoveChannelBan(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                     }
+                     p++;
+                 }
+                 else if (atPos == 't') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemoveTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 'n') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetNoExternalMessages(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemoveNoExternalMessages(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 'i') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemoveInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 'm') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetModerated(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemoveModerated(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 'p') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetPrivate(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemovePrivate(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
+                 else if (atPos == 's') {
+                     if (pn == '+') {
+                         this.eventHandler.onSetSecret(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                     else {
+                         this.eventHandler.onRemoveSecret(channel, sourceNick, sourceLogin, sourceHostname);
+                     }
+                 }
             }
 
             this.eventHandler.onMode(channel, sourceNick, sourceLogin, sourceHostname, mode);
