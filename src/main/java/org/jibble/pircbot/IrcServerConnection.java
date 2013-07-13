@@ -23,7 +23,7 @@ import java.util.*;
 import javax.net.*;
 import javax.net.ssl.*;
 import org.jibble.pircbot.api.IIrcEventHandler;
-import org.jibble.pircbot.handlers.InternalIrcEventHandler;
+import org.jibble.pircbot.handlers.IrcProtocolEventHandler;
 import org.jibble.pircbot.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +90,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * for changing the default settings if required.
      */
     public IrcServerConnection() {
-        this.eventHandler = new InternalIrcEventHandler( this ); // Carefuly - uninitialized this.
+        this.eventHandler = new IrcProtocolEventHandler( this ); // Carefuly - uninitialized this.
     }
 
 

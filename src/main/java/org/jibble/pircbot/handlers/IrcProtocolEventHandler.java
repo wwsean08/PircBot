@@ -9,12 +9,12 @@ import org.jibble.pircbot.api.IrcEventHandlerBase;
  * 
  * @author Ondrej Zizka, ozizka at redhat.com
  */
-public class InternalIrcEventHandler extends IrcEventHandlerBase {
+public class IrcProtocolEventHandler extends IrcEventHandlerBase {
     
     private IrcServerConnection pircBot;
 
 
-    public InternalIrcEventHandler( IrcServerConnection pircBot ) {
+    public IrcProtocolEventHandler( IrcServerConnection pircBot ) {
         this.pircBot = pircBot;
     }
     
