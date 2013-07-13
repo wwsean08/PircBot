@@ -15,6 +15,8 @@ Modifications from PircBot 1.5 by David Lazar.
 
 package org.jibble.pircbot;
 
+import org.jibble.pircbot.ex.IrcException;
+import org.jibble.pircbot.ex.NickAlreadyInUseException;
 import java.io.*;
 import java.net.*;
 import java.util.*;

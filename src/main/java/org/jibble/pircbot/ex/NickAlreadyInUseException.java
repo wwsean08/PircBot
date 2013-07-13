@@ -12,7 +12,7 @@ found at http://www.jibble.org/licenses/
 */
 
 
-package org.jibble.pircbot;
+package org.jibble.pircbot.ex;
 
 /**
  * A NickAlreadyInUseException class.  This exception is
