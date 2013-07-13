@@ -1378,6 +1378,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * setting the verbose mode to true.
      *
      * @param verbose true if verbose mode is to be used.  Default is false.
+     * @TODO  Move to some Configuration class.
      */
     public final void setVerbose(boolean verbose) {
         _verbose = verbose;
@@ -1395,6 +1396,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * when you are connected to a server.
      *
      * @param name The new name of the Bot.
+     * @TODO  Move to some Configuration class.
      */
     public final void setName(String name) {
         _name = name;
@@ -1419,6 +1421,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      *
      * @param login The new login of the Bot.
      * @deprecated As of version 1.6, replaced by {@link #setUserName}
+     * @TODO  Move to some Configuration class.
      */
     @Deprecated protected final void setLogin(String login) {
         _username = login;
@@ -1430,8 +1433,9 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * joining any servers.
      *
      * @param username The new username of the Bot.
+     * @TODO  Move to some Configuration class.
      */
-    protected final void setUserName(String username) {
+    public final void setUserName(String username) {
         _username = username;
     }
 
@@ -1441,8 +1445,9 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * joining any servers.
      *
      * @param realname The new realname of the Bot.
+     * @TODO  Move to some Configuration class.
      */
-    protected final void setRealName(String realname) {
+    public final void setRealName(String realname) {
         _realname = realname;
     }
 
@@ -1452,6 +1457,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * any servers.
      *
      * @param version The new version of the Bot.
+     * @TODO  Move to some Configuration class.
      */
     protected final void setVersion(String version) {
         _version = version;
@@ -1463,6 +1469,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * any servers.
      *
      * @param finger The new finger message for the Bot.
+     * @TODO  Move to some Configuration class.
      */
     protected final void setFinger(String finger) {
         _finger = finger;
@@ -1474,6 +1481,7 @@ public abstract class IrcServerConnection implements ReplyConstants {
      * as a nick when we try to join servers.
      *
      * @return The name of the PircBot.
+     * @TODO  Move to some Configuration class.
      */
     public final String getName() {
         return _name;
