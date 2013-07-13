@@ -5,7 +5,8 @@ import org.jibble.pircbot.DccFileTransfer;
 import org.jibble.pircbot.User;
 
 /**
- *
+ *  Interface for IRC event handler implementations.
+ * 
  *  @author Ondrej Zizka, ozizka at redhat.com
  */
 public interface IIrcEventHandler {

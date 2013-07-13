@@ -61,7 +61,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author  Paul James Mutton, <a href="http://www.jibble.org/">http://www.jibble.org/</a>
  * @author  Ondrej Zizka, <a href="http://www.pohlidame.cz/">http://www.pohlidame.cz/</a>
- * @version    1.7.0 (Build time: Mon Dec 14 20:07:17 2009)
  */
 public abstract class PircBot implements ReplyConstants {
     private static final Logger log = LoggerFactory.getLogger(PircBot.class);

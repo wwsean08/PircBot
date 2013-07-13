@@ -7,7 +7,8 @@ import org.jibble.pircbot.PircBot;
 import org.jibble.pircbot.User;
 
 /**
- * Interface for IRC event handler implementations.
+ * Internal event handler; 
+ * Some events have to be handled with default actions to keep some PircBot goodies work.
  * 
  * @author Ondrej Zizka, ozizka at redhat.com
  */
