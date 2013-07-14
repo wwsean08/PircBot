@@ -1923,7 +1923,7 @@ public class IrcServerConnection implements ReplyConstants {
     public Boolean isUserInChannel( String nick, String channel ){
         synchronized (_channels) {
             Hashtable users = (Hashtable) _channels.get(channel);
-            if(users != null)
+            if(users == null)
                 return null;
             
             User user = (User) users.get( nick );
