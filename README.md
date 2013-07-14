@@ -17,16 +17,41 @@ PircBot' (this project; pronounced "PircBot prime") is a framework for writing I
 
 # Usage
 
-PircBot' can be installed by typing:
+## Maven dependency
 
-    $ ant
+To add PircBot to your Maven project, add this dependency and repository:
 
-This makes the PircBot' library available to projects that depend on it through Ivy. The library can also be used via the resulting `build/artifacts/pircbot.jar` file.
+        <dependency>
+            <groupId>cz.dynawest.pircbot</groupId>
+            <artifactId>PircBot-core</artifactId>
+            <version>1.7.0</version>
+        </dependency>
 
-For general documentation on using PircBot' once it's installed, see the [jibble.org PircBot website](http://www.jibble.org/pircbot.php). See [ReminderBot'](https://github.com/davidlazar/ReminderBot) for an example of how to use the new features provided by PircBot'.
+    <repositories>
+        <repository>
+            <id>ondrazizka</id>
+            <url>http://ondrazizka.googlecode.com/svn/maven</url>
+        </repository>
+    </repositories>
+
+PircBot has explicit dependency on Slf4j and Log4j.
+Exclude Log4j if you use different logger.
+
+
+# Build
+
+PircBot' can be built by typing:
+
+    $ mvn clean install
+
+For general documentation on using PircBot' once it's installed, 
+see the [jibble.org PircBot website](http://www.jibble.org/pircbot.php).
+See [ReminderBot'](https://github.com/davidlazar/ReminderBot) for an example of how to use the new features provided by PircBot'.
+
 
 # Contributing
 
-This project is available on [GitHub](https://github.com/davidlazar/PircBot) and [Bitbucket](https://bitbucket.org/davidlazar/pircbot/). You may contribute changes using either.
+This project is available on [GitHub](https://github.com/davidlazar/PircBot) and 
+[Bitbucket](https://bitbucket.org/davidlazar/pircbot/). You may contribute changes using either.
 
 Please report bugs and feature requests using the [GitHub issue tracker](https://github.com/davidlazar/PircBot/issues).
