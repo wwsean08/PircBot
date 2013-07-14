@@ -1,18 +1,12 @@
 /*
     Copyright Paul James Mutton, 2001-2009, http://www.jibble.org/
-
-    This file is part of PircBot.
-
     This software is dual-licensed, allowing you to choose between the GNU
     General Public License (GPL) and the www.jibble.org Commercial License.
     Since the GPL may be too restrictive for use in a proprietary application,
     a commercial license is also provided. Full license information can be
     found at http://www.jibble.org/licenses/
-
     Modifications from PircBot 1.5 by David Lazar and Ondrej Zizka.
 */
-
-
 package org.jibble.pircbot;
 
 import org.jibble.pircbot.beans.ReplyConstants;
@@ -454,7 +448,7 @@ public class IrcServerConnection implements ReplyConstants {
      */
     public final synchronized void sendRawLineViaQueue(String line) {
         if (line == null) {
-            throw new NullPointerException("Cannot send null messages to server");
+            throw new IllegalArgumentException("Cannot send null messages to server");
         }
         if (isConnected()) {
             _outQueue.add(line);
@@ -474,7 +468,7 @@ public class IrcServerConnection implements ReplyConstants {
      *    // Send a private message to Paul that says "Hi".
      *    sendMessage("Paul", "Hi");</pre>
      *
-     * You may optionally apply colours, boldness, underlining, etc to
+     * You may optionally apply colors, boldness, underlining, etc. to
      * the message by using the <code>Colors</code> class.
      *
      * @param target The name of the channel or user nick to send to.
@@ -910,29 +904,6 @@ public class IrcServerConnection implements ReplyConstants {
     }
 
 
-    /**
-     * Adds a line to the log.  This log is currently output to the standard
-     * output and is in the correct format for use by tools such as pisg, the
-     * Perl IRC Statistics Generator.  You may override this method if you wish
-     * to do something else with log entries.
-     * Each line in the log begins with a number which
-     * represents the logging time (as the number of milliseconds since the
-     * epoch).  This timestamp and the following log entry are separated by
-     * a single space character, " ".  Outgoing messages are distinguishable
-     * by a log entry that has ">>>" immediately following the space character
-     * after the timestamp.  DCC events use "+++" and warnings about unhandled
-     * Exceptions and Errors use "###".
-     *  <p>
-     * This implementation of the method will only cause log entries to be
-     * output if the PircBot has had its verbose mode turned on by calling
-     * setVerbose(true);
-     *
-     * @param line The line to add to the log.
-     */
-    private void log(String line) {
-        log.info(line);
-    }
-
 
     /**
      * This method handles events when any line of text arrives from the server,
@@ -944,7 +915,7 @@ public class IrcServerConnection implements ReplyConstants {
      * @param line The raw line of text from the server.
      */
     protected void handleLine(String line) {
-        log.debug(line);
+        //log.trace(line);
 
         // Check for server pings.
         if (line.startsWith("PING ")) {

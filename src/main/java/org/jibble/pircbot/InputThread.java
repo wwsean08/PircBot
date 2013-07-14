@@ -52,6 +52,8 @@ public class InputThread extends Thread {
      * outgoing message queue.
      *
      * @param line The raw line to send to the IRC server.
+     * 
+     * TODO: Remove, this shouldn't be in an InputThread.
      */
     void sendRawLine(String line) {
         OutputThread.sendRawLine(_bot, _bwriter, line);
@@ -78,7 +80,7 @@ public class InputThread extends Thread {
      * any Exception or Error) is thrown by your method, then this
      * method will print the stack trace to the standard output.  It
      * is probable that the PircBot may still be functioning normally
-     * after such a problem, but the existance of any uncaught exceptions
+     * after such a problem, but the existence of any uncaught exceptions
      * in your code is something you should really fix.
      */
     public void run() {
@@ -89,6 +91,8 @@ public class InputThread extends Thread {
                     String line = null;
                     while ((line = _breader.readLine()) != null) {
                         try {
+                            // TODO: This call shouldn't be here.
+                            if( log.isDebugEnabled() )  log.debug(line);
                             _bot.handleLine(line);
                         }
                         catch (Throwable t) {
@@ -99,13 +103,13 @@ public class InputThread extends Thread {
                             pw.flush();
                             StringTokenizer tokenizer = new StringTokenizer(sw.toString(), "\r\n");
                             synchronized (_bot) {
-                                log.debug("### Your implementation of PircBot is faulty and you have");
-                                log.debug("### allowed an uncaught Exception or Error to propagate in your");
-                                log.debug("### code. It may be possible for PircBot to continue operating");
-                                log.debug("### normally. Here is the stack trace that was produced: -");
-                                log.debug("### ");
+                                log.error("### Your implementation of PircBot is faulty and you have");
+                                log.error("### allowed an uncaught Exception or Error to propagate from your code.");
+                                log.error("### It may be possible for PircBot to continue operating normally.");
+                                log.error("### Here is the stack trace that was produced:");
+                                log.error("### ");
                                 while (tokenizer.hasMoreTokens()) {
-                                    log.debug("### " + tokenizer.nextToken());
+                                    log.error("### " + tokenizer.nextToken());
                                 }
                             }
                         }
