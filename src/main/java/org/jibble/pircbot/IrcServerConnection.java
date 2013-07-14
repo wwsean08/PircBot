@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * @author  Paul James Mutton, <a href="http://www.jibble.org/">http://www.jibble.org/</a>
  * @author  Ondrej Zizka, <a href="http://www.pohlidame.cz/">http://www.pohlidame.cz/</a>
  */
-public abstract class IrcServerConnection implements ReplyConstants {
+public class IrcServerConnection implements ReplyConstants {
     private static final Logger log = LoggerFactory.getLogger(IrcServerConnection.class);
 
     /**
