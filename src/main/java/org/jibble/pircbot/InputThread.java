@@ -92,7 +92,7 @@ public class InputThread extends Thread {
                     while ((line = _breader.readLine()) != null) {
                         try {
                             // TODO: This call shouldn't be here.
-                            if( log.isDebugEnabled() )  log.debug(line);
+                            if( log.isDebugEnabled() )  log.debug("<<<" + line);
                             _bot.handleLine(line);
                         }
                         catch (Throwable t) {
