@@ -1945,6 +1945,20 @@ public class IrcServerConnection implements ReplyConstants {
         return userArray;
     }
 
+    /**
+     *  Returns null if we are not in given $channel.
+     *  Returns whether the user with given $nick is present in given $channel.
+     */
+    public Boolean isUserInChannel( String nick, String channel ){
+        synchronized (_channels) {
+            Hashtable users = (Hashtable) _channels.get(channel);
+            if(users != null)
+                return null;
+            
+            User user = (User) users.get( nick );
+            return null != user;
+        }
+    }
 
     /**
      * Returns an array of all channels that we are in.  Note that if you
