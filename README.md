@@ -7,6 +7,14 @@ PircBot' (this project; pronounced "PircBot prime") is a framework for writing I
 * A build system using Apache Ant and Apache Ivy
 * Other minor improvements
 
+
+# News in 1.7.0
+
+* Uses slf4j with log4j as backend (exclude to use different logger)
+* Split the root object and event handler (new `IIrcEventHandler` interface and `IrcProtocolEventHandler` base class)
+* Classes split into packages (e.g. `User` is now in `.beans.User`)
+
+
 # Usage
 
 PircBot' can be installed by typing:
