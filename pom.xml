@@ -9,7 +9,7 @@
 
     <groupId>cz.dynawest.pircbot</groupId>
     <artifactId>PircBot-core</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
 
     <name>Pircbot core</name>
     <description>Java IRC Bot.</description>
