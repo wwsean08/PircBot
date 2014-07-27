@@ -7,6 +7,9 @@ PircBot' (this project; pronounced "PircBot prime") is a framework for writing I
 * A build system using Apache Ant and Apache Ivy
 * Other minor improvements
 
+# News in 1.8.0
+* Allow multiple `IIrcEventHanlder` listeners which can do different things in order to make your bot more modular.
+* Currently 1.8.0 is not in a maven repository so you'll have to clone and then install it on your local repository.
 
 # News in 1.7.0
 
