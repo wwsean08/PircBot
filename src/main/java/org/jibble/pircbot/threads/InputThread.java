@@ -9,12 +9,13 @@ a commercial license is also provided. Full license information can be
 found at http://www.jibble.org/licenses/
  */
 
-package org.jibble.pircbot;
+package org.jibble.pircbot.threads;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import org.jibble.pircbot.IrcServerConnection;
 import org.jibble.pircbot.api.IIrcEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class InputThread extends Thread
      * @param bwriter
      *            The BufferedWriter that sends lines to the server.
      */
-    InputThread(IrcServerConnection bot, Socket socket, BufferedReader breader, BufferedWriter bwriter)
+    public InputThread(IrcServerConnection bot, Socket socket, BufferedReader breader, BufferedWriter bwriter)
     {
         _bot = bot;
         _socket = socket;
@@ -61,7 +62,7 @@ public class InputThread extends Thread
      * 
      *            TODO: Remove, this shouldn't be in an InputThread.
      */
-    void sendRawLine(String line)
+    public void sendRawLine(String line)
     {
         OutputThread.sendRawLine(_bot, _bwriter, line);
     }
@@ -73,7 +74,7 @@ public class InputThread extends Thread
      *
      * @return True if still connected.
      */
-    boolean isConnected()
+    public boolean isConnected()
     {
         return _isConnected;
     }

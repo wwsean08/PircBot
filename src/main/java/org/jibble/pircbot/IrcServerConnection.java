@@ -14,13 +14,24 @@ import org.jibble.pircbot.beans.ConnectionSettings;
 import org.jibble.pircbot.beans.User;
 import org.jibble.pircbot.ex.IrcException;
 import org.jibble.pircbot.ex.NickAlreadyInUseException;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.net.*;
 import javax.net.ssl.*;
+
 import org.jibble.pircbot.api.IIrcEventHandler;
 import org.jibble.pircbot.handlers.IrcProtocolEventHandler;
+import org.jibble.pircbot.threads.InputThread;
+import org.jibble.pircbot.threads.MessageCompactor;
+import org.jibble.pircbot.threads.OutputThread;
 import org.jibble.pircbot.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -646,6 +657,31 @@ public class IrcServerConnection implements ReplyConstants
         }
     }
     
+    public final void sendPriorityMessage(String target, String message)
+    {
+        _outQueue.offerFirst("PRIVMSG " + target + " :" + message);
+    }
+    
+    public final void sendPriorityMessage(String user, String channel, String message)
+    {
+        if (channel == null)
+        {
+            if (user == null)
+            {
+                throw new IllegalArgumentException("Neither user nor channel set, can't send the message: " + message);
+            }
+            else
+            {
+                this.sendPriorityMessage(user, message);
+            }
+        }
+        else
+        {
+            String whoFor = (user == null) ? "" : (user + ": ");
+            this.sendPriorityMessage(channel, whoFor + message);
+        }
+    }
+    
     /**
      * Sends an action to the channel or to a user.
      *
@@ -1104,7 +1140,7 @@ public class IrcServerConnection implements ReplyConstants
      * @param line
      *            The raw line of text from the server.
      */
-    protected void handleLine(String line)
+    public void handleLine(String line)
     {
         // log.trace(line);
         
@@ -2074,6 +2110,42 @@ public class IrcServerConnection implements ReplyConstants
     }
     
     /**
+     * Removes duplicate messages from the outgoing queue to prevent from being
+     * looking like you are spamming the channel. Checks the queue every second.
+     * 
+     * @since PircBot 1.8.0
+     *
+     * @param enabled
+     *            whether or not to do this, by default this is disabled.
+     *
+     */
+    public void compactOutgoingQueue(boolean enabled)
+    {
+        if (enabled)
+        {
+            if (!_compactOutgoingQueue)
+            {
+                _compactOutgoingQueue = true;
+                if (_compactingThreadPool == null)
+                {
+                    _compactingThreadPool = Executors.newScheduledThreadPool(1);
+                }
+                MessageCompactor compactor = new MessageCompactor(_outQueue);
+                _compactingThreadPool.scheduleAtFixedRate(compactor, 1, 1, TimeUnit.SECONDS);
+                log.info("starting message compacting thread");
+            }
+        }
+        else
+        {
+            if (_compactOutgoingQueue)
+            {
+                _compactingThreadPool.shutdownNow();
+                log.info("stoping message compacting thread");
+            }
+        }
+    }
+    
+    /**
      * Returns the name of the last IRC server the PircBot tried to connect to.
      * This does not imply that the connection attempt to the server was
      * successful (we suggest you look at the onConnect method). A value of null
@@ -2633,7 +2705,7 @@ public class IrcServerConnection implements ReplyConstants
     private ConnectionSettings _connectionSettings = null;
     
     // Outgoing message stuff.
-    private Queue _outQueue = new Queue();
+    private LinkedBlockingDeque<String> _outQueue = new LinkedBlockingDeque<>();
     private long _messageDelay = 1000;
     
     // A Hashtable of channels that points to a selfreferential Hashtable of
@@ -2660,4 +2732,8 @@ public class IrcServerConnection implements ReplyConstants
     private String _finger = "You ought to be arrested for fingering a bot!";
     
     private String _channelPrefixes = "#&+!";
+    
+    // Used for message compacting
+    private boolean _compactOutgoingQueue = false;
+    private ScheduledExecutorService _compactingThreadPool;
 }
