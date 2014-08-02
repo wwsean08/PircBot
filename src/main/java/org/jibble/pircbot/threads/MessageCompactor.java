@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Removed duplicate objects from the queue based on the .equals method. There
@@ -17,7 +18,7 @@ import org.apache.log4j.Logger;
  */
 public class MessageCompactor extends Thread
 {
-    Logger log = Logger.getLogger(getClass());
+    Logger log = LoggerFactory.getLogger(getClass());
     LinkedBlockingDeque<String> queue;
     
     public MessageCompactor(LinkedBlockingDeque<String> _outQueue)
