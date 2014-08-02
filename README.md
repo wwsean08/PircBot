@@ -9,7 +9,10 @@ PircBot' (this project; pronounced "PircBot prime") is a framework for writing I
 
 # News in 1.8.0
 * Allow multiple `IIrcEventHanlder` listeners which can do different things in order to make your bot more modular.
+* Refactored the queing of messages.
+* Added the ability to remove duplicate messages that are sitting in the queue that are just waiting to get sent (for example if 3 people perform the help command in a short period of time, only 1 help will be displayed).  
 * Currently 1.8.0 is not in a maven repository so you'll have to clone and then install it on your local repository.
+
 
 # News in 1.7.0
 
