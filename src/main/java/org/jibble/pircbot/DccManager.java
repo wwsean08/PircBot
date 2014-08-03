@@ -13,6 +13,7 @@ package org.jibble.pircbot;
 
 import java.util.*;
 
+import org.jibble.pircbot.api.IIrcChatHandler;
 import org.jibble.pircbot.api.IIrcEventHandler;
 
 /**
@@ -64,9 +65,16 @@ public class DccManager
             
             DccFileTransfer transfer = new DccFileTransfer(_bot, this, nick, login, hostname, type, filename, address,
                     port, size);
-            for (IIrcEventHandler handler : _bot.getEventHandlers())
+            for (Object handler : _bot.getEventHandlers())
             {
-                handler.onIncomingFileTransfer(transfer);
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onIncomingFileTransfer(transfer);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onIncomingFileTransfer(transfer);
+                }
             }
             
         }
@@ -132,9 +140,16 @@ public class DccManager
             {
                 public void run()
                 {
-                    for (IIrcEventHandler handler : _bot.getEventHandlers())
+                    for (Object handler : _bot.getEventHandlers())
                     {
-                        handler.onIncomingChatRequest(chat);
+                        if (handler instanceof IIrcChatHandler)
+                        {
+                            ((IIrcChatHandler) handler).onIncomingChatRequest(chat);
+                        }
+                        else if (handler instanceof IIrcEventHandler)
+                        {
+                            ((IIrcEventHandler) handler).onIncomingChatRequest(chat);
+                        }
                     }
                 }
             }.start();

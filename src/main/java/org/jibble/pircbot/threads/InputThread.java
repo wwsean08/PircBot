@@ -16,6 +16,7 @@ import java.net.*;
 import java.util.*;
 
 import org.jibble.pircbot.IrcServerConnection;
+import org.jibble.pircbot.api.IIrcAdministrativeHandler;
 import org.jibble.pircbot.api.IIrcEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,10 +168,16 @@ public class InputThread extends Thread
         {
             log.debug("*** Disconnected.");
             _isConnected = false;
-            for (IIrcEventHandler handler : _bot.getEventHandlers())
+            for (Object handler : _bot.getEventHandlers())
             {
-                handler.onDisconnect();
-                
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onDisconnect();
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onDisconnect();
+                }
             }
         }
     }

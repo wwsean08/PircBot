@@ -14,6 +14,7 @@ import java.net.*;
 import java.util.List;
 import java.io.*;
 
+import org.jibble.pircbot.api.IIrcChatHandler;
 import org.jibble.pircbot.api.IIrcEventHandler;
 import org.jibble.pircbot.utils.Utils;
 
@@ -179,9 +180,16 @@ public class DccFileTransfer
                         // Do nothing.
                     }
                 }
-                for (IIrcEventHandler handler : _bot.getEventHandlers())
+                for (Object handler : _bot.getEventHandlers())
                 {
-                    handler.onFileTransferFinished(DccFileTransfer.this, exception);
+                    if (handler instanceof IIrcChatHandler)
+                    {
+                        ((IIrcChatHandler) handler).onFileTransferFinished(DccFileTransfer.this, exception);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onFileTransferFinished(DccFileTransfer.this, exception);
+                    }
                 }
             }
         }.start();
@@ -319,9 +327,17 @@ public class DccFileTransfer
                     }
                 }
                 
-                for (IIrcEventHandler handler : _bot.getEventHandlers())
+                for (Object handler : _bot.getEventHandlers())
                 {
-                    handler.onFileTransferFinished(DccFileTransfer.this, exception);
+                    if (handler instanceof IIrcChatHandler)
+                    {
+                        ((IIrcChatHandler) handler).onFileTransferFinished(DccFileTransfer.this, exception);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onFileTransferFinished(DccFileTransfer.this, exception);
+                        
+                    }
                 }
             }
         }.start();

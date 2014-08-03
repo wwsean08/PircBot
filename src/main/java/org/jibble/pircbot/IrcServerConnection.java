@@ -18,7 +18,6 @@ import org.jibble.pircbot.ex.NickAlreadyInUseException;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,7 +26,10 @@ import java.util.concurrent.TimeUnit;
 import javax.net.*;
 import javax.net.ssl.*;
 
+import org.jibble.pircbot.api.IIrcAdministrativeHandler;
+import org.jibble.pircbot.api.IIrcChatHandler;
 import org.jibble.pircbot.api.IIrcEventHandler;
+import org.jibble.pircbot.api.IIrcServerCommHandler;
 import org.jibble.pircbot.handlers.IrcProtocolEventHandler;
 import org.jibble.pircbot.threads.InputThread;
 import org.jibble.pircbot.threads.MessageCompactor;
@@ -86,11 +88,11 @@ public class IrcServerConnection implements ReplyConstants
     private static final int VOICE_REMOVE = 4;
     
     // IRC event handler.
-    private List<IIrcEventHandler> eventHandlerList;
+    private List<Object> eventHandlerList;
     
     private IrcProtocolEventHandler defaultHandler;
     
-    public List<IIrcEventHandler> getEventHandlers()
+    public List<Object> getEventHandlers()
     {
         return eventHandlerList;
     }
@@ -99,9 +101,10 @@ public class IrcServerConnection implements ReplyConstants
      * Add an event handler to the list of event handlers
      * 
      * @param eventHandler
+     *            an object that implements one of the API interfaces
      * @return true if the list was modified
      */
-    public boolean addEventHandler(IIrcEventHandler eventHandler)
+    public boolean addEventHandler(Object eventHandler)
     {
         if (this.eventHandlerList == null)
         {
@@ -117,7 +120,7 @@ public class IrcServerConnection implements ReplyConstants
      *            a registered event handler
      * @return true if the element existed and was removed
      */
-    public boolean removeEventHandler(IIrcEventHandler eventHandler)
+    public boolean removeEventHandler(Object eventHandler)
     {
         if (this.eventHandlerList == null)
         {
@@ -410,9 +413,16 @@ public class IrcServerConnection implements ReplyConstants
             _outputThread = new OutputThread(this, _outQueue);
             _outputThread.start();
         }
-        for (IIrcEventHandler handler : eventHandlerList)
+        for (Object handler : eventHandlerList)
         {
-            handler.onConnect();
+            if (handler instanceof IIrcAdministrativeHandler)
+            {
+                ((IIrcAdministrativeHandler) handler).onConnect();
+            }
+            else if (handler instanceof IIrcEventHandler)
+            {
+                ((IIrcEventHandler) handler).onConnect();
+            }
         }
     }
     
@@ -1148,10 +1158,18 @@ public class IrcServerConnection implements ReplyConstants
         if (line.startsWith("PING "))
         {
             // Respond to the ping and return immediately.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onServerPing(line.substring(5));
+                if (handler instanceof IIrcServerCommHandler)
+                {
+                    ((IIrcServerCommHandler) handler).onServerPing(line.substring(5));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onServerPing(line.substring(5));
+                }
             }
+            
             return;
         }
         
@@ -1212,9 +1230,24 @@ public class IrcServerConnection implements ReplyConstants
                 else
                 {
                     // We don't know what this line means.
-                    for (IIrcEventHandler handler : this.eventHandlerList)
+                    for (Object handler : this.eventHandlerList)
                     {
-                        handler.onUnknown(line);
+                        if (handler instanceof IIrcChatHandler)
+                        {
+                            ((IIrcChatHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcAdministrativeHandler)
+                        {
+                            ((IIrcAdministrativeHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcServerCommHandler)
+                        {
+                            ((IIrcServerCommHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcEventHandler)
+                        {
+                            ((IIrcEventHandler) handler).onUnknown(line);
+                        }
                     }
                     // Return from the method;
                     return;
@@ -1244,41 +1277,81 @@ public class IrcServerConnection implements ReplyConstants
             if (request.equals("VERSION"))
             {
                 // VERSION request
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onVersion(sourceNick, sourceLogin, sourceHostname, target);
+                    if (handler instanceof IIrcServerCommHandler)
+                    {
+                        ((IIrcServerCommHandler) handler).onVersion(sourceNick, sourceLogin, sourceHostname, target);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onVersion(sourceNick, sourceLogin, sourceHostname, target);
+                    }
                 }
             }
             else if (request.startsWith("ACTION "))
             {
                 // ACTION request
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onAction(sourceNick, sourceLogin, sourceHostname, target, request.substring(7));
+                    if (handler instanceof IIrcChatHandler)
+                    {
+                        ((IIrcChatHandler) handler).onAction(sourceNick, sourceLogin, sourceHostname, target,
+                                request.substring(7));
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onAction(sourceNick, sourceLogin, sourceHostname, target,
+                                request.substring(7));
+                    }
                 }
             }
             else if (request.startsWith("PING "))
             {
                 // PING request
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onPing(sourceNick, sourceLogin, sourceHostname, target, request.substring(5));
+                    if (handler instanceof IIrcServerCommHandler)
+                    {
+                        ((IIrcServerCommHandler) handler).onPing(sourceNick, sourceLogin, sourceHostname, target,
+                                request.substring(5));
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onPing(sourceNick, sourceLogin, sourceHostname, target,
+                                request.substring(5));
+                    }
                 }
             }
             else if (request.equals("TIME"))
             {
                 // TIME request
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onTime(sourceNick, sourceLogin, sourceHostname, target);
+                    if (handler instanceof IIrcServerCommHandler)
+                    {
+                        ((IIrcServerCommHandler) handler).onTime(sourceNick, sourceLogin, sourceHostname, target);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onTime(sourceNick, sourceLogin, sourceHostname, target);
+                    }
                 }
             }
             else if (request.equals("FINGER"))
             {
                 // FINGER request
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onFinger(sourceNick, sourceLogin, sourceHostname, target);
+                    if (handler instanceof IIrcServerCommHandler)
+                    {
+                        ((IIrcServerCommHandler) handler).onFinger(sourceNick, sourceLogin, sourceHostname, target);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onFinger(sourceNick, sourceLogin, sourceHostname, target);
+                    }
                 }
             }
             else if ((tokenizer = new StringTokenizer(request)).countTokens() >= 5
@@ -1289,37 +1362,83 @@ public class IrcServerConnection implements ReplyConstants
                 if (!success)
                 {
                     // The DccManager didn't know what to do with the line.
-                    for (IIrcEventHandler handler : this.eventHandlerList)
+                    for (Object handler : this.eventHandlerList)
                     {
-                        handler.onUnknown(line);
+                        if (handler instanceof IIrcChatHandler)
+                        {
+                            ((IIrcChatHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcServerCommHandler)
+                        {
+                            ((IIrcServerCommHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcAdministrativeHandler)
+                        {
+                            ((IIrcAdministrativeHandler) handler).onUnknown(line);
+                        }
+                        else if (handler instanceof IIrcEventHandler)
+                        {
+                            ((IIrcEventHandler) handler).onUnknown(line);
+                        }
                     }
                 }
             }
             else
             {
                 // An unknown CTCP message - ignore it.
-                for (IIrcEventHandler handler : this.eventHandlerList)
+                for (Object handler : this.eventHandlerList)
                 {
-                    handler.onUnknown(line);
+                    if (handler instanceof IIrcChatHandler)
+                    {
+                        ((IIrcChatHandler) handler).onUnknown(line);
+                    }
+                    else if (handler instanceof IIrcServerCommHandler)
+                    {
+                        ((IIrcServerCommHandler) handler).onUnknown(line);
+                    }
+                    else if (handler instanceof IIrcAdministrativeHandler)
+                    {
+                        ((IIrcAdministrativeHandler) handler).onUnknown(line);
+                    }
+                    else if (handler instanceof IIrcEventHandler)
+                    {
+                        ((IIrcEventHandler) handler).onUnknown(line);
+                    }
                 }
             }
         }
         else if (command.equals("PRIVMSG") && _channelPrefixes.indexOf(target.charAt(0)) >= 0)
         {
             // This is a normal message to a channel.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onMessage(target, sourceNick, sourceLogin, sourceHostname,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onMessage(target, sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onMessage(target, sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else if (command.equals("PRIVMSG"))
         {
             // This is a private message to us.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onPrivateMessage(sourceNick, sourceLogin, sourceHostname,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onPrivateMessage(sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onPrivateMessage(sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else if (command.equals("JOIN"))
@@ -1327,9 +1446,16 @@ public class IrcServerConnection implements ReplyConstants
             // Someone is joining a channel.
             String channel = target;
             this.addUser(channel, new User("", sourceNick));
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onJoin(channel, sourceNick, sourceLogin, sourceHostname);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onJoin(channel, sourceNick, sourceLogin, sourceHostname);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onJoin(channel, sourceNick, sourceLogin, sourceHostname);
+                }
             }
         }
         else if (command.equals("PART"))
@@ -1340,9 +1466,16 @@ public class IrcServerConnection implements ReplyConstants
             {
                 this.removeChannel(target);
             }
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onPart(target, sourceNick, sourceLogin, sourceHostname);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onPart(target, sourceNick, sourceLogin, sourceHostname);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onPart(target, sourceNick, sourceLogin, sourceHostname);
+                }
             }
         }
         else if (command.equals("NICK"))
@@ -1355,18 +1488,34 @@ public class IrcServerConnection implements ReplyConstants
                 // Update our nick if it was us that changed nick.
                 this.setNick(newNick);
             }
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler)
+                            .onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onNickChange(sourceNick, sourceLogin, sourceHostname, newNick);
+                }
             }
         }
         else if (command.equals("NOTICE"))
         {
             // Someone is sending a notice.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onNotice(sourceNick, sourceLogin, sourceHostname, target,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onNotice(sourceNick, sourceLogin, sourceHostname, target,
+                            line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onNotice(sourceNick, sourceLogin, sourceHostname, target,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else if (command.equals("QUIT"))
@@ -1380,10 +1529,18 @@ public class IrcServerConnection implements ReplyConstants
             {
                 this.removeUser(sourceNick);
             }
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onQuit(sourceNick, sourceLogin, sourceHostname,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onQuit(sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onQuit(sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else if (command.equals("KICK"))
@@ -1395,10 +1552,18 @@ public class IrcServerConnection implements ReplyConstants
                 this.removeChannel(target);
             }
             this.removeUser(target, recipient);
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onKick(target, sourceNick, sourceLogin, sourceHostname, recipient,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onKick(target, sourceNick, sourceLogin, sourceHostname,
+                            recipient, line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onKick(target, sourceNick, sourceLogin, sourceHostname, recipient,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else if (command.equals("MODE"))
@@ -1414,19 +1579,35 @@ public class IrcServerConnection implements ReplyConstants
         else if (command.equals("TOPIC"))
         {
             // Someone is changing the topic.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onTopic(target, line.substring(line.indexOf(" :") + 2), sourceNick,
-                        System.currentTimeMillis(), true);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onTopic(target, line.substring(line.indexOf(" :") + 2),
+                            sourceNick, System.currentTimeMillis(), true);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onTopic(target, line.substring(line.indexOf(" :") + 2), sourceNick,
+                            System.currentTimeMillis(), true);
+                }
             }
         }
         else if (command.equals("INVITE"))
         {
             // Somebody is inviting somebody else into a channel.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onInvite(target, sourceNick, sourceLogin, sourceHostname,
-                        line.substring(line.indexOf(" :") + 2));
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onInvite(target, sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onInvite(target, sourceNick, sourceLogin, sourceHostname,
+                            line.substring(line.indexOf(" :") + 2));
+                }
             }
         }
         else
@@ -1434,9 +1615,24 @@ public class IrcServerConnection implements ReplyConstants
             // If we reach this point, then we've found something that the
             // PircBot
             // Doesn't currently deal with.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onUnknown(line);
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onUnknown(line);
+                }
+                else if (handler instanceof IIrcServerCommHandler)
+                {
+                    ((IIrcServerCommHandler) handler).onUnknown(line);
+                }
+                else if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onUnknown(line);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onUnknown(line);
+                }
             }
         }
         
@@ -1477,9 +1673,16 @@ public class IrcServerConnection implements ReplyConstants
                 // Stick with the value of zero.
             }
             String topic = response.substring(colon + 1);
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onChannelInfo(channel, userCount, topic);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onChannelInfo(channel, userCount, topic);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onChannelInfo(channel, userCount, topic);
+                }
             }
         }
         else if (code == RPL_TOPIC)
@@ -1495,9 +1698,16 @@ public class IrcServerConnection implements ReplyConstants
             
             // For backwards compatibility only - this onTopic method is
             // deprecated.
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onTopic(channel, topic);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onTopic(channel, topic);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onTopic(channel, topic);
+                }
             }
         }
         else if (code == RPL_TOPICINFO)
@@ -1519,9 +1729,16 @@ public class IrcServerConnection implements ReplyConstants
             String topic = (String) _topics.get(channel);
             _topics.remove(channel);
             
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onTopic(channel, topic, setBy, date, false);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onTopic(channel, topic, setBy, date, false);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onTopic(channel, topic, setBy, date, false);
+                }
             }
         }
         else if (code == RPL_NAMREPLY)
@@ -1560,15 +1777,33 @@ public class IrcServerConnection implements ReplyConstants
             // the full list of users in the channel that we just joined.
             String channel = response.substring(response.indexOf(' ') + 1, response.indexOf(" :"));
             User[] users = this.getUsers(channel);
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onUserList(channel, users);
+                if (handler instanceof IIrcChatHandler)
+                {
+                    ((IIrcChatHandler) handler).onUserList(channel, users);
+                }
+                else if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onUserList(channel, users);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onUserList(channel, users);
+                }
             }
         }
         
-        for (IIrcEventHandler handler : this.eventHandlerList)
+        for (Object handler : this.eventHandlerList)
         {
-            handler.onServerResponse(code, response);
+            if (handler instanceof IIrcServerCommHandler)
+            {
+                ((IIrcServerCommHandler) handler).onServerResponse(code, response);
+            }
+            else if (handler instanceof IIrcEventHandler)
+            {
+                ((IIrcEventHandler) handler).onServerResponse(code, response);
+            }
         }
     }
     
@@ -1627,17 +1862,35 @@ public class IrcServerConnection implements ReplyConstants
                     if (pn == '+')
                     {
                         this.updateUser(channel, OP_ADD, params[p]);
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onOp(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onOp(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onOp(channel, sourceNick, sourceLogin, sourceHostname,
+                                        params[p]);
+                            }
                         }
                     }
                     else
                     {
                         this.updateUser(channel, OP_REMOVE, params[p]);
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onDeop(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onDeop(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onDeop(channel, sourceNick, sourceLogin, sourceHostname,
+                                        params[p]);
+                            }
                         }
                     }
                     p++;
@@ -1647,17 +1900,35 @@ public class IrcServerConnection implements ReplyConstants
                     if (pn == '+')
                     {
                         this.updateUser(channel, VOICE_ADD, params[p]);
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onVoice(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onVoice(channel, sourceNick, sourceLogin, sourceHostname,
+                                        params[p]);
+                            }
                         }
                     }
                     else
                     {
                         this.updateUser(channel, VOICE_REMOVE, params[p]);
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onDeVoice(channel, sourceNick, sourceLogin, sourceHostname, params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onDeVoice(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onDeVoice(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
                         }
                     }
                     p++;
@@ -1666,18 +1937,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetChannelKey(channel, sourceNick, sourceLogin, sourceHostname,
-                                    params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetChannelKey(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetChannelKey(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveChannelKey(channel, sourceNick, sourceLogin, sourceHostname,
-                                    params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveChannelKey(channel, sourceNick,
+                                        sourceLogin, sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveChannelKey(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
                         }
                     }
                     p++;
@@ -1686,18 +1973,35 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetChannelLimit(channel, sourceNick, sourceLogin, sourceHostname,
-                                    Integer.parseInt(params[p]));
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetChannelLimit(channel, sourceNick,
+                                        sourceLogin, sourceHostname, Integer.parseInt(params[p]));
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetChannelLimit(channel, sourceNick, sourceLogin,
+                                        sourceHostname, Integer.parseInt(params[p]));
+                            }
                         }
                         p++;
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveChannelLimit(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveChannelLimit(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveChannelLimit(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1705,18 +2009,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetChannelBan(channel, sourceNick, sourceLogin, sourceHostname,
-                                    params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetChannelBan(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetChannelBan(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveChannelBan(channel, sourceNick, sourceLogin, sourceHostname,
-                                    params[p]);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveChannelBan(channel, sourceNick,
+                                        sourceLogin, sourceHostname, params[p]);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveChannelBan(channel, sourceNick, sourceLogin,
+                                        sourceHostname, params[p]);
+                            }
                         }
                     }
                     p++;
@@ -1725,16 +2045,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetTopicProtection(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetTopicProtection(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveTopicProtection(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveTopicProtection(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveTopicProtection(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1742,17 +2080,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetNoExternalMessages(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetNoExternalMessages(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetNoExternalMessages(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveNoExternalMessages(channel, sourceNick, sourceLogin,
-                                    sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveNoExternalMessages(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveNoExternalMessages(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1760,16 +2115,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetInviteOnly(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetInviteOnly(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveInviteOnly(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveInviteOnly(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveInviteOnly(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1777,16 +2150,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetModerated(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetModerated(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetModerated(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveModerated(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveModerated(channel, sourceNick,
+                                        sourceLogin, sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveModerated(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1794,16 +2185,34 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetPrivate(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetPrivate(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetPrivate(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemovePrivate(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemovePrivate(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemovePrivate(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
@@ -1811,33 +2220,67 @@ public class IrcServerConnection implements ReplyConstants
                 {
                     if (pn == '+')
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onSetSecret(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onSetSecret(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onSetSecret(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                     else
                     {
-                        for (IIrcEventHandler handler : this.eventHandlerList)
+                        for (Object handler : this.eventHandlerList)
                         {
-                            handler.onRemoveSecret(channel, sourceNick, sourceLogin, sourceHostname);
+                            if (handler instanceof IIrcAdministrativeHandler)
+                            {
+                                ((IIrcAdministrativeHandler) handler).onRemoveSecret(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
+                            else if (handler instanceof IIrcEventHandler)
+                            {
+                                ((IIrcEventHandler) handler).onRemoveSecret(channel, sourceNick, sourceLogin,
+                                        sourceHostname);
+                            }
                         }
                     }
                 }
             }
             
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onMode(channel, sourceNick, sourceLogin, sourceHostname, mode);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler)
+                            .onMode(channel, sourceNick, sourceLogin, sourceHostname, mode);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onMode(channel, sourceNick, sourceLogin, sourceHostname, mode);
+                }
             }
         }
         else
         {
             // The mode of a user is being changed.
             String nick = target;
-            for (IIrcEventHandler handler : this.eventHandlerList)
+            for (Object handler : this.eventHandlerList)
             {
-                handler.onUserMode(nick, sourceNick, sourceLogin, sourceHostname, mode);
+                if (handler instanceof IIrcAdministrativeHandler)
+                {
+                    ((IIrcAdministrativeHandler) handler).onUserMode(nick, sourceNick, sourceLogin, sourceHostname,
+                            mode);
+                }
+                else if (handler instanceof IIrcEventHandler)
+                {
+                    ((IIrcEventHandler) handler).onUserMode(nick, sourceNick, sourceLogin, sourceHostname, mode);
+                }
             }
         }
     }
